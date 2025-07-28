@@ -156,20 +156,20 @@ def main():
         except Exception as e:
             print(f"Error saving JSON file: {e}", file=sys.stderr)
 
-    # Offer to launch main3-0.py
-    launch_main = get_input("Launch main3-0.py to test this FSM? (yes/no): ", lambda x: x.lower() in ['yes', 'no'], "Please enter 'yes' or 'no'.").lower()
-    if launch_main == 'yes':
+    # Offer to launch cli.py
+    launch_cli = get_input("Launch cli.py to test this FSM? (yes/no): ", lambda x: x.lower() in ['yes', 'no'], "Please enter 'yes' or 'no'.").lower()
+    if launch_cli == 'yes':
         if json_filename and os.path.exists(json_filename):
-            print(f"Launching main3-0.py with {json_filename}...")
+            print(f"Launching cli.py with {json_filename}...")
             try:
-                # Adjusted path for main3-0.py within PyCompilerDesign
-                subprocess.run([sys.executable, os.path.join(os.path.dirname(__file__), "main3-0.py"), "--load-from", json_filename])
+                # Adjusted path for cli.py within PyCompilerDesign
+                subprocess.run([sys.executable, os.path.join(os.path.dirname(__file__), "cli.py"), "--load-from", json_filename])
             except FileNotFoundError:
-                print("Error: main3-0.py not found. Make sure it's in the same directory.", file=sys.stderr)
+                print("Error: cli.py not found. Make sure it's in the same directory.", file=sys.stderr)
             except Exception as e:
-                print(f"An error occurred while launching main3-0.py: {e}", file=sys.stderr)
+                print(f"An error occurred while launching cli.py: {e}", file=sys.stderr)
         else:
-            print("Cannot launch main3-0.py: JSON file not saved or not found.", file=sys.stderr)
+            print("Cannot launch cli.py: JSON file not saved or not found.", file=sys.stderr)
 
     print("\n--- FSM Creation Complete ---")
 

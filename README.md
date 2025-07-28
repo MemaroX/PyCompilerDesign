@@ -4,6 +4,31 @@
 
 `PyCompilerDesign` is an evolving Python project designed to provide a robust and intuitive toolkit for exploring, designing, and analyzing fundamental concepts in compiler design and formal language theory. Building upon the foundational principles of Finite State Automata (FSA), this project extends capabilities to include regular expression processing, interactive FSM creation, and advanced command-line utilities.
 
+## Project Structure
+
+```
+PyCompilerDesign/
+├── compiler/
+│   └── fsa/
+│       ├── __init__.py
+│       ├── dfa.py
+│       ├── nfa.py
+│       └── regex.py
+├── tools/
+│   ├── cli.py
+│   ├── dot_customizer.py
+│   └── fsm_creator.py
+├── main.py
+├── pyproject.toml
+└── README.md
+```
+
+-   **`compiler/fsa/`**: Contains the core Finite State Automata (FSA) implementation, including Deterministic Finite Automata (DFA), Nondeterministic Finite Automata (NFA), and Regular Expression (Regex) to NFA conversion logic.
+-   **`tools/`**: Houses various command-line utilities for interacting with the FSA module, such as FSM creation, advanced CLI for testing, and DOT file customization.
+-   **`main.py`**: The main entry point for interactive demonstrations of regex to NFA conversion and string acceptance.
+-   **`pyproject.toml`**: Project metadata and dependency management.
+-   **`README.md`**: This file, providing an overview of the project.
+
 ## Key Features
 
 -   **DFA & NFA Implementation:** Core classes for Deterministic Finite Automata (DFAs) and Nondeterministic Finite Automata (NFAs), enabling the simulation and analysis of computational processes.
@@ -11,9 +36,9 @@
 -   **NFA to DFA Conversion:** Seamlessly convert NFAs to their equivalent DFAs, simplifying analysis and understanding.
 -   **Transducers:** Explore step-by-step computation with mutable transducers that process input symbols one at a time.
 -   **Regular Expression Integration:** Define automata directly from regular expression patterns, bridging the gap between theoretical language definition and practical automaton construction.
--   **Interactive FSM Creation (`fsm_creator.py`):** An intuitive command-line interface to guide you through the process of defining DFAs and NFAs, generating both JSON definitions and visual DOT graph files.
--   **Advanced CLI (`cli.py`):** A versatile command-line interface for loading, testing, and interacting with FSMs from various sources (JSON, DOT files), including a mesmerizing step-by-step execution mode.
--   **DOT File Customization (`dot_customizer.py`):** Programmatically modify and render DOT graph files, allowing for enhanced visualization and emphasis of specific automaton elements.
+-   **Interactive FSM Creation (`tools/fsm_creator.py`):** An intuitive command-line interface to guide you through the process of defining DFAs and NFAs, generating both JSON definitions and visual DOT graph files.
+-   **Advanced CLI (`tools/cli.py`):** A versatile command-line interface for loading, testing, and interacting with FSMs from various sources (JSON, DOT files), including a mesmerizing step-by-step execution mode.
+-   **DOT File Customization (`tools/dot_customizer.py`):** Programmatically modify and render DOT graph files, allowing for enhanced visualization and emphasis of specific automaton elements.
 -   **Visualization:** Integration with Graphviz to transform abstract mathematical concepts into visual diagrams (PNG), providing clear insights into automaton structure and behavior.
 
 ## Installation
@@ -46,38 +71,38 @@ python main.py
 
 Follow the prompts to enter a regular expression and test strings against the generated NFA.
 
-### Interactive FSM Creation (`fsm_creator.py`)
+### Interactive FSM Creation (`tools/fsm_creator.py`)
 
 Create new DFAs or NFAs through a guided interactive process.
 
 ```bash
-python fsm_creator.py
+python tools/fsm_creator.py
 ```
 
 This will generate JSON and DOT files for your automaton.
 
-### Advanced CLI (`cli.py`)
+### Advanced CLI (`tools/cli.py`)
 
 Load and test automata from JSON or DOT files, or engage in step-by-step execution.
 
 **Load from JSON and test:**
 
 ```bash
-python cli.py --load-from my_fsm.json
+python tools/cli.py --load-from my_fsm.json
 ```
 
 **Load from DOT file and test:**
 
 ```bash
-python cli.py --dot-file path/to/your/automaton.gv
+python tools/cli.py --dot-file path/to/your/automaton.gv
 ```
 
-### DOT File Customization (`dot_customizer.py`)
+### DOT File Customization (`tools/dot_customizer.py`)
 
 Modify and render existing DOT graph files. For example, to highlight the initial state:
 
 ```bash
-python dot_customizer.py --input path/to/input.gv --output customized_automaton
+python tools/dot_customizer.py --input path/to/input.gv --output customized_automaton
 ```
 
 This will generate `customized_automaton.dot` and `customized_automaton.png`.

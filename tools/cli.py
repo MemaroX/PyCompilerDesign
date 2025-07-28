@@ -104,15 +104,17 @@ def parse_dot_file(dot_filepath):
         lines = dot_source.split('\n')
         for line in lines:
             line = line.strip()
-            if line.startswith('node [shape = doublecircle]'):
-                parts = line.split(';')
-                for part in parts:
-                    if 'doublecircle' in part:
-                        state_name = part.replace('node [shape = doublecircle]', '').strip()
-                        if state_name:
-                            final_states.add(state_name)
-                            states.add(state_name)
-            elif line.startswith('node [shape = circle]'):
+            if line.startswith('node [shape = doublecircle]') and 'doublecircle' in line:
+                # Extract state names from lines like 'node [shape = doublecircle] q1, q2;' or 'q1 [shape = doublecircle];'
+                # This regex attempts to capture state names that are followed by a semicolon or end of line
+                # and are not part of the 'node [shape = doublecircle]' declaration itself.
+                # It's a bit more robust than simple string splitting for this specific case.
+                state_matches = re.findall(r'\b([a-zA-Z0-9_]+)\b\s*(?:;|$)', line.replace('node [shape = doublecircle]', ''))
+                for state_name in state_matches:
+                    if state_name:
+                        final_states.add(state_name)
+                        states.add(state_name)
+            elif line.startswith('node [shape = circle]') and 'circle' in line:
                 # Regular states, already added if they are final or in transitions
                 pass
             elif '->' in line and not line.startswith('null ->'):
@@ -192,7 +194,7 @@ def parse_dot_file(dot_filepath):
         print(f"Error: DOT file not found at {dot_filepath}", file=sys.stderr)
         sys.exit(1)
     except Exception as e:
-        print(f"Error parsing DOT file {dot_filepath}: {e}", file=sys.stderr)
+        print(f"An error occurred while parsing DOT file {dot_filepath}: {e}", file=sys.stderr)
         sys.exit(1)
 
 def main():
