@@ -4,7 +4,7 @@
 
 ## Unlocking the World of Compilers and Formal Languages
 
-`PyCompilerDesign` is the definitive Python project designed to be your robust, intuitive, and complete toolkit for exploring, designing, and analyzing fundamental concepts in compiler design and formal language theory. This project serves as the **central reference and future development hub** for all compiler-related endeavors, integrating and significantly improving upon the foundational work from projects like `python-fsa` and `FirstTryCppCompiler`. It aims to provide a comprehensive and extensible platform for understanding the entire compilation process, from lexical analysis to advanced language processing.
+`PyCompilerDesign` is the definitive Python project designed to be your robust, intuitive, and complete toolkit for exploring, designing, and analyzing fundamental concepts in compiler design and formal language theory. This project serves as the **central reference and future development hub** for all compiler-related endeavors, integrating and significantly improving upon the foundational work from projects like `python-fsa`, `FirstTryCppCompiler`, and `CppCompilerProject`. It aims to provide a comprehensive and extensible platform for understanding the entire compilation process, from lexical analysis to advanced language processing.
 
 ## Project Structure
 
@@ -116,7 +116,7 @@ This will generate `customized_automaton.dot` and `customized_automaton.png`.
 
 The journey of `PyCompilerDesign` is continuous. As the central reference for compiler design, its roadmap includes:
 
--   **Integration of Lexical Analysis:** Incorporate and enhance the lexical analysis capabilities from `FirstTryCppCompiler` to provide a complete front-end for a C-like language.
+-   **Integration of Lexical Analysis:** Incorporate and enhance the lexical analysis capabilities from `FirstTryCppCompiler` and `CppCompilerProject` to provide a complete front-end for a C-like language.
 -   **Context-Free Grammar (CFG) Support:** Extend the library to support more complex language models, including pushdown automata and context-free grammars, building upon the theoretical foundations.
 -   **Parsing Techniques:** Implement various parsing algorithms (e.g., LL(1), LR(1)) to handle CFGs and generate parse trees.
 -   **Semantic Analysis:** Develop modules for type checking, symbol table management, and other semantic validation.
