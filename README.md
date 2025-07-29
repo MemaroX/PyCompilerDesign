@@ -1,10 +1,10 @@
-# PyCompilerDesign: A Comprehensive Toolkit for Automata and Language Processing
+# PyCompilerDesign: The Comprehensive Toolkit for Compiler Design and Formal Languages
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Unlocking the World of Compilers and Formal Languages
 
-`PyCompilerDesign` is an evolving Python project designed to provide a robust and intuitive toolkit for exploring, designing, and analyzing fundamental concepts in compiler design and formal language theory. Building upon the foundational principles of Finite State Automata (FSA), this project extends capabilities to include regular expression processing, interactive FSM creation, and advanced command-line utilities. Unlike traditional compiler front-ends, this project delves deep into the theoretical underpinnings of language recognition.
+`PyCompilerDesign` is the definitive Python project designed to be your robust, intuitive, and complete toolkit for exploring, designing, and analyzing fundamental concepts in compiler design and formal language theory. This project serves as the **central reference and future development hub** for all compiler-related endeavors, integrating and significantly improving upon the foundational work from projects like `python-fsa` and `FirstTryCppCompiler`. It aims to provide a comprehensive and extensible platform for understanding the entire compilation process, from lexical analysis to advanced language processing.
 
 ## Project Structure
 
@@ -114,13 +114,17 @@ This will generate `customized_automaton.dot` and `customized_automaton.png`.
 
 ## Future Work
 
-The journey of `PyCompilerDesign` is continuous. We envision further enhancements to make the interaction with formal languages even more intuitive and powerful. Our roadmap includes:
+The journey of `PyCompilerDesign` is continuous. As the central reference for compiler design, its roadmap includes:
 
--   **Regular Expression Integration:** **[DONE]** Seamless integration with regular expressions, allowing users to define automata directly from regex patterns and vice-versa.
+-   **Integration of Lexical Analysis:** Incorporate and enhance the lexical analysis capabilities from `FirstTryCppCompiler` to provide a complete front-end for a C-like language.
+-   **Context-Free Grammar (CFG) Support:** Extend the library to support more complex language models, including pushdown automata and context-free grammars, building upon the theoretical foundations.
+-   **Parsing Techniques:** Implement various parsing algorithms (e.g., LL(1), LR(1)) to handle CFGs and generate parse trees.
+-   **Semantic Analysis:** Develop modules for type checking, symbol table management, and other semantic validation.
+-   **Intermediate Code Generation:** Implement generation of intermediate representations (e.g., Three-Address Code).
+-   **Optimization and Code Generation:** Explore techniques for code optimization and generation of target machine code.
 -   **Minimization Algorithms:** Implement classic DFA minimization algorithms (e.g., Myhill-Nerode theorem, partition refinement) to optimize automata for efficiency and elegance.
 -   **Advanced Visualization Features:** Explore dynamic visualization capabilities, such as animating state transitions during input processing, or generating interactive web-based visualizations.
 -   **Formal Verification Tools:** Integrate tools for formal verification, enabling users to prove properties about their automata, suchs as equivalence or language inclusion.
--   **Context-Free Grammar (CFG) Support:** Extend the library to support more complex language models, potentially including pushdown automata and context-free grammars.
 -   **Performance Optimization:** Continuously refine the underlying algorithms for enhanced performance, especially when dealing with very large or complex automata.
 -   **Web-Based Interface:** Investigate the development of a user-friendly web interface, allowing for visual FSM design, simulation, and analysis directly in a browser.
 
