@@ -1,0 +1,106 @@
+# PyCompilerDesign CLI Manual Test Cases
+
+This file contains example inputs for each option in the PyCompilerDesign CLI.
+Please follow the instructions for each section.
+
+---
+
+## 1. Lex Code
+
+**Instructions:**
+- Select option '1' in the CLI.
+- When prompted, paste the code below and press Enter.
+
+**Input Code:**
+if (x + 1);
+while (true) {
+    return 0;
+}
+
+---
+
+## 2. Parse Code
+
+**Instructions:**
+- Select option '2' in the CLI.
+- When prompted, paste the code below and press Enter.
+
+**Input Code:**
+1 + 2;
+3;
+(4 + 5);
+
+---
+
+## 3. Regex to NFA/DFA
+
+**Instructions:**
+- Select option '3' in the CLI.
+- When prompted, paste one of the regular expressions below and press Enter.
+
+**Input Regex Examples:**
+a.b
+a|b
+a*
+(a|b)*
+(a.b)*|c
+
+---
+
+## 4. Test NFA Acceptance (from Regex)
+
+**Instructions:**
+- Select option '4' in the CLI.
+- When prompted for the regex, paste one of the regex examples from section 3.
+- When prompted for strings, enter the test strings one by one. Type 'q' to quit testing for that regex.
+
+**Example Regex (use one from above):** a.bS
+**Test Strings for 'a.b':**
+ab
+a
+b
+ac
+q
+
+**Example Regex:** (a|b)*
+**Test Strings for '(a|b)*':**
+a
+b
+aa
+ab
+ba
+bb
+abc
+q
+
+---
+
+## 5. Convert FSA to Regex
+
+**Instructions:**
+- Select option '5' in the CLI.
+- Follow the prompts to enter states, alphabet, initial state, final states, and transitions.
+- Use the example NFA below.
+
+**Example NFA (accepts 'a'):**
+- States: q0,q1
+- Alphabet: a
+- Initial State: q0
+- Final States: q1
+- Transitions: q0,a,q1
+
+**Example NFA (accepts 'a' using epsilon):**
+- States: q0,q1,q2
+- Alphabet: a
+- Initial State: q0
+- Final States: q2
+- Transitions: q0,ε,q1;q1,a,q2
+
+**Example DFA (accepts strings ending in '01'):**
+- States: A,B,C
+- Alphabet: 0,1
+- Initial State: A
+- Final States: C
+- Transitions: A,0,B;A,1,A;B,0,B;B,1,C;C,0,B;C,1,A
+
+---

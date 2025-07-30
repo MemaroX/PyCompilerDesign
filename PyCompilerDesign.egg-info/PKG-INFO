@@ -1,0 +1,4 @@
+Metadata-Version: 2.4
+Name: PyCompilerDesign
+Version: 0.1.0
+Requires-Dist: pygraphviz~=1.10

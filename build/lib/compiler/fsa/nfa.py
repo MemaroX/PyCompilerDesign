@@ -207,9 +207,12 @@ def _flatten(
 ) -> Transitions:
     result = defaultdict(set)
     for state in states:
-        for (s, t), s1 in transitions.items():
-            if s in closures[state] and t != epsilon:
-                result[(state, t)] |= s1
+        for q_prime in closures[state]:
+            for (s, t), s1 in transitions.items():
+                if s == q_prime and t != epsilon:
+                    for target_state in s1:
+                        result[(state, t)].update(closures[target_state])
+
     return _cull(
         initial,
         {(s, t): frozenset(s1) for (s, t), s1 in result.items()}
@@ -221,9 +224,7 @@ def _cull(initial: S, transitions: Transitions) -> Transitions:
     queue = deque(reachable)
     while queue:
         current = queue.pop()
-        next_reachable = set().union(*(
-            s1 for (s, _), s1 in transitions.items() if s == current
-        ))
+        next_reachable = set().union(*(s1 for (s, _), s1 in transitions.items() if s == current))
         queue.extend(next_reachable - reachable)
         reachable |= next_reachable
     return {(s, t): s1 for (s, t), s1 in transitions.items() if s in reachable}

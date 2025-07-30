@@ -3,7 +3,7 @@ import sys
 import os
 import json
 # from python_fsa import DFA, NFA # Original import
-from compiler.fsa import DFA, NFA # Adjusted import
+from compiler.fsa import DFA, NFA, to_dot, nfa_from_dot, dfa_from_dot, render # Adjusted import
 import graphviz
 
 def serialize_automaton(automaton):
@@ -45,157 +45,7 @@ def deserialize_automaton(data):
     else:
         return NFA(alphabet=alphabet, states=states, initial=initial, final=final, transitions=transitions)
 
-def visualize_automaton(automaton, automaton_type, filename="automaton_visualization"):
-    dot = graphviz.Digraph(comment=f'{automaton_type.upper()} Visualization')
-    dot.attr('node', shape='circle')
-    dot.attr(rankdir='LR')
 
-    # Add invisible start node and edge to initial state
-    dot.node('start', shape='none', width='0', height='0')
-    dot.edge('start', automaton.initial)
-
-    # Add nodes
-    for state in automaton.states:
-        if state in automaton.final:
-            dot.node(state, shape='doublecircle')
-        else:
-            dot.node(state)
-
-    # Add transitions
-    if automaton_type == 'dfa':
-        for (state, symbol), next_state in automaton.transitions.items():
-            dot.edge(state, next_state, label=str(symbol))
-    elif automaton_type == 'nfa':
-        for (state, symbol), next_states in automaton.transitions.items():
-            for next_state in next_states:
-                dot.edge(state, next_state, label=str(symbol))
-
-    output_path = f"{filename}.png"
-    try:
-        dot.render(filename, view=False, format='png', cleanup=True)
-        print(f"Visualization saved to {output_path}")
-    except graphviz.backend.gv.ExecutableNotFound:
-        print(f"Warning: Graphviz executable 'dot' not found. Cannot generate visualization. Please ensure Graphviz is installed and in your system's PATH.", file=sys.stderr)
-    except Exception as e:
-        print(f"An error occurred during visualization: {e}", file=sys.stderr)
-
-def parse_dot_file(dot_filepath):
-    try:
-        with open(dot_filepath, 'r') as f:
-            dot_source = f.read()
-        
-        # Use graphviz.Source to parse the dot file
-        graph = graphviz.Source(dot_source)
-        
-        # This is a simplified parsing. A robust parser would need to handle
-        # all DOT syntax variations, subgraphs, attributes, etc.
-        # For this example, we'll assume a basic structure as seen in dfa_example.gv and nfa_example.gv
-
-        states = set()
-        alphabet = set()
-        transitions = {}
-        initial_state = None
-        final_states = set()
-        automaton_type = 'dfa' # Assume DFA unless NFA characteristics are found
-
-        # Parse nodes and initial/final states
-        # This part is tricky as graphviz.Source doesn't directly expose parsed AST
-        # We'll rely on string parsing for simplicity, but it's brittle.
-        lines = dot_source.split('\n')
-        for line in lines:
-            line = line.strip()
-            if line.startswith('node [shape = doublecircle]') and 'doublecircle' in line:
-                # Extract state names from lines like 'node [shape = doublecircle] q1, q2;' or 'q1 [shape = doublecircle];'
-                # This regex attempts to capture state names that are followed by a semicolon or end of line
-                # and are not part of the 'node [shape = doublecircle]' declaration itself.
-                # It's a bit more robust than simple string splitting for this specific case.
-                state_matches = re.findall(r'\b([a-zA-Z0-9_]+)\b\s*(?:;|$)', line.replace('node [shape = doublecircle]', ''))
-                for state_name in state_matches:
-                    if state_name:
-                        final_states.add(state_name)
-                        states.add(state_name)
-            elif line.startswith('node [shape = circle]') and 'circle' in line:
-                # Regular states, already added if they are final or in transitions
-                pass
-            elif '->' in line and not line.startswith('null ->'):
-                # Parse transitions
-                parts = line.split('->')
-                from_state = parts[0].strip()
-                to_part = parts[1].strip()
-
-                label_match = to_part.split('label = "')
-                if len(label_match) > 1:
-                    label_str = label_match[1].split('"')[0]
-                    to_state = label_match[0].strip().replace(' [', '').strip()
-                else:
-                    to_state = to_part.strip()
-                    label_str = "" # Epsilon transition or unlabeled
-                
-                symbols = tuple(s.strip() for s in label_str.split(',')) if label_str else ("",)
-
-                states.add(from_state)
-                states.add(to_state)
-                for symbol in symbols:
-                    if symbol:
-                        alphabet.add(symbol)
-
-                for symbol in symbols:
-                    current_transitions = transitions.get((from_state, symbol), [])
-                    current_transitions.append(to_state)
-                    transitions[(from_state, symbol)] = current_transitions
-                    
-                    # Check for NFA characteristics
-                    if len(current_transitions) > 1:
-                        automaton_type = 'nfa'
-
-            elif line.startswith('null ->'):
-                initial_state = line.replace('null ->', '').strip().replace(';', '').strip()
-                states.add(initial_state)
-
-        # Convert transition lists to tuples/single values
-        processed_transitions = {}
-        for (state, symbol), next_states_list in transitions.items():
-            if automaton_type == 'dfa':
-                if len(next_states_list) != 1:
-                    raise ValueError(f"DFA transition from {state} on {symbol} leads to multiple states: {next_states_list}. This is not a valid DFA.")
-                processed_transitions[(state, symbol)] = next_states_list[0]
-            else:
-                processed_transitions[(state, symbol)] = tuple(sorted(set(next_states_list))) # Remove duplicates and sort for consistency
-
-        # Ensure all states in transitions are in the states set
-        for (s, _), next_s in processed_transitions.items():
-            if s not in states:
-                states.add(s)
-            if isinstance(next_s, tuple):
-                for ns in next_s:
-                    if ns not in states:
-                        states.add(ns)
-            elif next_s not in states:
-                states.add(next_s)
-
-        if automaton_type == 'dfa':
-            return DFA(
-                alphabet=frozenset(alphabet),
-                states=frozenset(states),
-                initial=initial_state,
-                final=frozenset(final_states),
-                transitions=processed_transitions
-            ), 'dfa'
-        else:
-            return NFA(
-                alphabet=frozenset(alphabet),
-                states=frozenset(states),
-                initial=initial_state,
-                final=frozenset(final_states),
-                transitions=processed_transitions
-            ), 'nfa'
-
-    except FileNotFoundError:
-        print(f"Error: DOT file not found at {dot_filepath}", file=sys.stderr)
-        sys.exit(1)
-    except Exception as e:
-        print(f"An error occurred while parsing DOT file {dot_filepath}: {e}", file=sys.stderr)
-        sys.exit(1)
 
 def main():
     parser = argparse.ArgumentParser(description="Create and test a Finite State Automaton.")
@@ -233,7 +83,7 @@ def main():
             print(f"An error occurred while loading automaton: {e}", file=sys.stderr)
             sys.exit(1)
     elif args.dot_file:
-        automaton, automaton_type = parse_dot_file(args.dot_file)
+        automaton, automaton_type = nfa_from_dot(args.dot_file) if 'nfa' in open(args.dot_file).read() else dfa_from_dot(args.dot_file)
         print(f"\nAutomaton loaded successfully from {args.dot_file}!")
     else:
         # Validate required arguments if not loading from file
@@ -335,7 +185,11 @@ def main():
     # --- Visualization (if not skipped) ---
     if not args.skip_visualization:
         output_filename = args.output_file if args.output_file else f"{automaton_type}_visualization"
-        visualize_automaton(automaton, automaton_type, output_filename)
+        try:
+            render(automaton, output_filename, renderer="dot")
+            print(f"Visualization saved to {output_filename}.png")
+        except Exception as e:
+            print(f"An error occurred during visualization: {e}", file=sys.stderr)
 
     # --- Interactive Testing ---
     print("\n--- Interactive Testing ---")

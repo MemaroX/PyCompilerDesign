@@ -1,0 +1,10 @@
+pyproject.toml
+PyCompilerDesign.egg-info/PKG-INFO
+PyCompilerDesign.egg-info/SOURCES.txt
+PyCompilerDesign.egg-info/dependency_links.txt
+PyCompilerDesign.egg-info/requires.txt
+PyCompilerDesign.egg-info/top_level.txt
+compiler/fsa/__init__.py
+compiler/fsa/dfa.py
+compiler/fsa/nfa.py
+compiler/fsa/regex.py
