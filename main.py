@@ -5,6 +5,7 @@ from compiler.ast_nodes import Program, Statement, Expression, LiteralExpression
 from compiler.fsa_core import NFA, DFA
 from compiler.fsa_minimizer import DFAMinimizer
 from compiler.fsa_to_regex import FSAToRegexConverter
+from compiler.semantic_analyzer import SemanticAnalyzer
 from collections import deque
 import traceback
 
@@ -43,16 +44,20 @@ class CLI:
     def lex_code(self):
         code = self._get_multiline_input("Enter code to lex (type 'END' on a new line to finish):")
         lexer = CppLexer(code)
-        tokens = lexer.tokenize_and_filter(include_comments=True, include_newlines=True)
+        tokens, symbol_table = lexer.tokenize_and_filter(include_comments=True, include_newlines=True)
         print("\n--- Tokens ---")
         for token in tokens:
             print(token)
         print("--------------\n")
+        print("--- Symbol Table ---")
+        for identifier, info in symbol_table.items():
+            print(f"{identifier}: {info}")
+        print("--------------------\n")
 
     def parse_code(self):
         code = self._get_multiline_input("Enter code to parse (type 'END' on a new line to finish):")
         lexer = CppLexer(code)
-        tokens = lexer.tokenize_and_filter(include_comments=False, include_newlines=False)
+        tokens, _ = lexer.tokenize_and_filter(include_comments=False, include_newlines=False)
         parser = Parser(tokens)
         try:
             ast = parser.parse()
@@ -167,7 +172,9 @@ class CLI:
             print("3. Regex to NFA/DFA")
             print("4. Test NFA Acceptance (from Regex)")
             print("5. Convert FSA to Regex")
-            print("6. Exit")
+            print("6. Minimize DFA (from Regex)")
+            print("7. Semantic Analysis")
+            print("8. Exit")
             
             try:
                 choice = self._get_input("Enter your choice: ")
@@ -185,10 +192,58 @@ class CLI:
             elif choice == '5':
                 self.fsa_to_regex_conversion()
             elif choice == '6':
+                self.minimize_dfa()
+            elif choice == '7':
+                self.analyze_code_semantic()
+            elif choice == '8':
                 print("Exiting PyCompilerDesign CLI. Goodbye!")
                 break
             else:
                 print("Invalid choice. Please try again.\n")
+
+    def analyze_code_semantic(self):
+        code = self._get_multiline_input("Enter code for semantic analysis (type 'END' on a new line to finish):")
+        lexer = CppLexer(code)
+        tokens, _ = lexer.tokenize_and_filter(include_comments=False, include_newlines=False)
+        parser = Parser(tokens)
+        try:
+            ast = parser.parse()
+            analyzer = SemanticAnalyzer()
+            analyzer.analyze(ast)
+            print("\n--- Semantic Analysis Result ---")
+            print("Semantic analysis completed successfully. No errors found.")
+            print("----------------------------------\n")
+        except ValueError as e:
+            print(f"Semantic Analysis Error: {e}\n")
+        except Exception as e:
+            print(f"An unexpected error occurred during semantic analysis: {e}\n")
+            traceback.print_exc()
+
+    def minimize_dfa(self):
+        regex_str = self._get_input("Enter a regular expression to create a DFA to minimize: ")
+        try:
+            regex_obj = parse_regex(regex_str)
+            nfa = regex_obj.to_nfa()
+            dfa = nfa.to_dfa()
+
+            print(f"\n--- Original DFA (from regex '{regex_str}') ---")
+            print(dfa)
+            with open("original_dfa.dot", "w") as f:
+                f.write(dfa.to_dot())
+            print("Original DFA saved to original_dfa.dot")
+            
+            minimized_dfa = self.dfa_minimizer.minimize(dfa)
+
+            print(f"\n--- Minimized DFA ---")
+            print(minimized_dfa)
+            with open("minimized_dfa.dot", "w") as f:
+                f.write(minimized_dfa.to_dot())
+            print("Minimized DFA saved to minimized_dfa.dot")
+            print("-----------------------\n")
+
+        except Exception as e:
+            print(f"Error in DFA minimization: {e}\n")
+            traceback.print_exc()
 
 if __name__ == "__main__":
     cli = CLI()

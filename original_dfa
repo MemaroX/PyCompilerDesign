@@ -1,0 +1,12 @@
+digraph DFA {
+    rankdir=LR;
+    "frozenset({9, 4})" [shape=doublecircle];
+    "frozenset({0, 1, 5})" [shape=circle];
+    "frozenset({8, 9})" [shape=doublecircle];
+    "frozenset({2, 3, 6, 7})" [shape=circle];
+    "" [shape=none];
+    "" -> "frozenset({0, 1, 5})";
+    "frozenset({0, 1, 5})" -> "frozenset({2, 3, 6, 7})" [label="a"];
+    "frozenset({2, 3, 6, 7})" -> "frozenset({9, 4})" [label="b"];
+    "frozenset({2, 3, 6, 7})" -> "frozenset({8, 9})" [label="c"];
+}

@@ -3,6 +3,7 @@ from typing import NamedTuple
 
 class TokenType(Enum):
     # Literals
+    LITERAL = "LITERAL"
     INTEGER = "INTEGER"
     FLOAT = "FLOAT"
     STRING = "STRING"
@@ -13,6 +14,7 @@ class TokenType(Enum):
     IDENTIFIER = "IDENTIFIER"
     
     # Keywords
+    LET = "let"
     AUTO = "auto"
     BREAK = "break"
     CASE = "case"
@@ -142,6 +144,7 @@ class TokenType(Enum):
     
     # Special
     NEWLINE = "NEWLINE"
+    WHITESPACE = "WHITESPACE"
     EOF = "EOF"
     UNKNOWN = "UNKNOWN"
 

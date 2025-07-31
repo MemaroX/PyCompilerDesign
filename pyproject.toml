@@ -3,7 +3,6 @@ name = "PyCompilerDesign"
 version = "0.1.0"
 
 dependencies = [
-    "pygraphviz~=1.10",
 ]
 
 [build-system]

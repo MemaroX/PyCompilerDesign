@@ -83,6 +83,32 @@ class DFA(Generic[T, S]):
             final=(_join(state) for state in self.final),
         )
 
+    def to_dot(self) -> str:
+        """
+        Converts the DFA to a DOT language string for visualization.
+
+        Returns:
+            A string in DOT format representing the DFA.
+        """
+        dot_lines = ["digraph DFA {", "    rankdir=LR;"]
+        
+        # Define states
+        for state in self.states:
+            shape = "doublecircle" if state in self.final else "circle"
+            label = str(state)
+            dot_lines.append(f'    "{label}" [shape={shape}];')
+            
+        # Define initial state
+        dot_lines.append(f'    "" [shape=none];')
+        dot_lines.append(f'    "" -> "{str(self.initial)}";')
+
+        # Define transitions
+        for (from_state, symbol), to_state in self.transitions.items():
+            dot_lines.append(f'    "{str(from_state)}" -> "{str(to_state)}" [label="{str(symbol)}"];')
+            
+        dot_lines.append("}")
+        return "\n".join(dot_lines)
+
     def __str__(self):
         return "\n".join((
             "DFA(",

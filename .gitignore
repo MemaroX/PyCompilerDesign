@@ -1,1 +1,30 @@
-\"*.txt\" 
+# Gitignore for PyCompilerDesign
+
+# Python bytecode
+__pycache__/
+*.pyc
+
+# Distribution and build artifacts
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+*.egg
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Operating System files
+.DS_Store
+Thumbs.db
+
+# Generated files
+*.dot
+*.png
+
+# Specific to this project
+*.txt

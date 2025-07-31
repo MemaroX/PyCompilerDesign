@@ -1,4 +1,6 @@
 Metadata-Version: 2.4
 Name: PyCompilerDesign
 Version: 0.1.0
-Requires-Dist: pygraphviz~=1.10
+License-File: LICENSE
+Requires-Dist: graphviz~=0.20.1
+Dynamic: license-file

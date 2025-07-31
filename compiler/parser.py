@@ -1,5 +1,5 @@
-from compiler.lexer import Token, TokenType
-from compiler.ast_nodes import Program, Statement, Expression, LiteralExpression, BinaryOperation
+from compiler.lexer.token import Token, TokenType
+from compiler.ast_nodes import Program, Statement, Expression, LiteralExpression, BinaryOperation, VariableDeclaration, AssignmentStatement
 
 class Parser:
     def __init__(self, tokens: list[Token]):
@@ -15,6 +15,14 @@ class Parser:
         if self.current_token_index < len(self.tokens):
             return self.tokens[self.current_token_index]
         return Token(TokenType.EOF, "", -1, -1) # Return an EOF token
+
+    def _peek_token(self, offset: int = 1) -> Token:
+        peek_index = self.current_token_index + offset
+        while peek_index < len(self.tokens) and self.tokens[peek_index].type == TokenType.WHITESPACE:
+            peek_index += 1
+        if peek_index < len(self.tokens):
+            return self.tokens[peek_index]
+        return Token(TokenType.EOF, "", -1, -1)
 
     def _advance(self):
         self.current_token_index += 1
@@ -48,19 +56,49 @@ class Parser:
         return Program(statements)
 
     def parse_statement(self) -> Statement:
-        expression = self.parse_expression()
-        self._skip_whitespace()
-        if self._current_token().type == TokenType.SEMICOLON:
-            self._eat(TokenType.SEMICOLON)
-            return expression
+        if self._current_token().type == TokenType.LET:
+            return self._parse_variable_declaration()
+        elif self._current_token().type == TokenType.IDENTIFIER and self._peek_token().type == TokenType.ASSIGN:
+            return self._parse_assignment_statement()
         else:
-            raise ValueError(
-                f"Expected SEMICOLON after expression, "
-                f"but got {self._current_token().type.name} "
-                f"at line {self._current_token().line}, column {self._current_token().column}"
-            )
+            expression = self.parse_expression()
+            self._skip_whitespace()
+            if self._current_token().type == TokenType.SEMICOLON:
+                self._eat(TokenType.SEMICOLON)
+                return expression
+            else:
+                raise ValueError(
+                    f"Expected SEMICOLON after expression, "
+                    f"but got {self._current_token().type.name} "
+                    f"at line {self._current_token().line}, column {self._current_token().column}"
+                )
+
+    def _parse_variable_declaration(self) -> VariableDeclaration:
+        self._eat(TokenType.LET)
+        self._skip_whitespace()
+        identifier_token = self._current_token()
+        self._eat(TokenType.IDENTIFIER)
+        initializer = None
+        self._skip_whitespace()
+        if self._current_token().type == TokenType.ASSIGN:
+            self._eat(TokenType.ASSIGN)
+            self._skip_whitespace()
+            initializer = self.parse_expression()
+        self._eat(TokenType.SEMICOLON)
+        return VariableDeclaration(identifier_token.value, initializer)
+
+    def _parse_assignment_statement(self) -> AssignmentStatement:
+        identifier_token = self._current_token()
+        self._eat(TokenType.IDENTIFIER)
+        self._skip_whitespace()
+        self._eat(TokenType.ASSIGN)
+        self._skip_whitespace()
+        expression = self.parse_expression()
+        self._eat(TokenType.SEMICOLON)
+        return AssignmentStatement(identifier_token.value, expression)
 
     def parse_expression(self) -> Expression:
+        self._skip_whitespace()
         left = self._parse_primary_expression()
 
         self._skip_whitespace()
@@ -75,13 +113,18 @@ class Parser:
         return left
 
     def _parse_primary_expression(self) -> Expression:
+        self._skip_whitespace()
         if self._current_token().type == TokenType.LITERAL:
             value = self._current_token().value
             self._eat(TokenType.LITERAL)
             return LiteralExpression(value)
+        elif self._current_token().type == TokenType.IDENTIFIER:
+            value = self._current_token().value
+            self._eat(TokenType.IDENTIFIER)
+            return LiteralExpression(value) # For now, treat identifiers as literals in expressions
         else:
             raise ValueError(
-                f"Expected LITERAL, "
+                f"Expected LITERAL or IDENTIFIER, "
                 f"but got {self._current_token().type.name} "
                 f"at line {self._current_token().line}, column {self._current_token().column}"
             )

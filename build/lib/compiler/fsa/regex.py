@@ -1,7 +1,7 @@
 from collections.abc import Hashable, Iterable
 from typing import Final, Generic, TypeVar
 
-from .nfa import NFA
+from compiler.fsa_core import NFA
 
 T = TypeVar("T", bound=Hashable)
 S = TypeVar("S", bound=Hashable)
@@ -24,6 +24,7 @@ class Literal(Regex[T]):
             initial=0,
             transitions={(0, self.char): {1}},
             final={1},
+            epsilon=NFA.EPSILON
         )
 
     def __repr__(self):
@@ -70,6 +71,7 @@ class Concatenation(Regex[T]):
             initial=nfa1.initial,
             transitions=new_transitions,
             final=nfa2_final_offset,
+            epsilon=NFA.EPSILON
         )
 
     def __repr__(self):
@@ -131,6 +133,7 @@ class Alternation(Regex[T]):
             initial=new_initial,
             transitions=new_transitions,
             final={new_final},
+            epsilon=NFA.EPSILON
         )
 
     def __repr__(self):
@@ -185,16 +188,13 @@ class KleeneStar(Regex[T]):
             initial=new_initial,
             transitions=new_transitions,
             final={new_final},
+            epsilon=NFA.EPSILON
         )
 
     def __repr__(self):
         return f"KleeneStar({self.regex!r})"
 
 def parse_regex(regex_str: str) -> Regex[str]:
-    # This is a very basic parser that handles explicit concatenation ('.'),
-    # alternation ('|'), Kleene star ('*'), and parentheses.
-    # It does not handle implicit concatenation or other regex features.
-
     i = 0
     def peek():
         return regex_str[i] if i < len(regex_str) else None
@@ -231,8 +231,8 @@ def parse_regex(regex_str: str) -> Regex[str]:
     def parse_term():
         nonlocal i
         term = parse_factor()
-        while peek() == '.':
-            consume('.')
+        while peek() is not None and peek() not in ['|', ')']:
+            # Implicit concatenation
             factor = parse_factor()
             term = Concatenation(term, factor)
         return term
