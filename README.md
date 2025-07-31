@@ -4,7 +4,7 @@
 
 ## Unlocking the World of Compilers and Formal Languages
 
-`PyCompilerDesign` is the definitive Python project designed to be your robust, intuitive, and complete toolkit for exploring, designing, and analyzing fundamental concepts in compiler design and formal language theory. This project serves as the **central reference and future development hub** for all compiler-related endeavors, integrating and significantly improving upon the foundational work from projects like `python-fsa`, `FirstTryCppCompiler`, and `CppCompilerProject`. It aims to provide a comprehensive and extensible platform for understanding the entire compilation process, from lexical analysis to advanced language processing.
+`PyCompilerDesign` is the definitive Python project designed to be your robust, intuitive, and complete toolkit for exploring, designing, and analyzing fundamental concepts in compiler design and formal language theory. This project serves as the **central reference and future development hub** for all compiler-related endeavors, providing a complete, end-to-end compiler implementation from source code to a target assembly-like language.
 
 ## Project Structure
 
@@ -15,6 +15,7 @@ PyCompilerDesign/
 │   ├── lexer/
 │   ├── __init__.py
 │   ├── ast_nodes.py
+│   ├── code_generator.py
 │   ├── fsa_core.py
 │   ├── fsa_minimizer.py
 │   ├── fsa_to_regex.py
@@ -25,6 +26,7 @@ PyCompilerDesign/
 │   └── semantic_analyzer.py
 ├── tests/
 │   ├── __init__.py
+│   ├── test_code_generator.py
 │   ├── test_fsa_core.py
 │   ├── test_fsa_minimizer.py
 │   ├── test_fsa_to_regex.py
@@ -45,12 +47,13 @@ PyCompilerDesign/
 
 ## Key Features
 
--   **Full Compiler Pipeline:** Implement and experiment with every phase of a modern compiler:
+-   **End-to-End Compiler Pipeline:** Implement and experiment with every phase of a modern compiler, from source code to target code:
     -   **Lexical Analysis:** A robust C++-oriented lexer that generates tokens and a symbol table.
     -   **Parsing:** A parser that constructs an Abstract Syntax Tree (AST) from the token stream.
     -   **Semantic Analysis:** A semantic analyzer that traverses the AST to find errors like undeclared variables.
     -   **Intermediate Code Generation:** An IR generator that produces Three-Address Code (TAC).
     -   **Code Optimization:** An optimizer that applies techniques like constant folding and copy propagation to the IR.
+    -   **Code Generation:** A code generator that translates the optimized IR into a simple, human-readable assembly language.
 -   **Comprehensive FSA Toolkit:** A complete suite of tools for working with Finite State Automata.
     -   **DFA & NFA Implementation:** Core classes for Deterministic and Nondeterministic Finite Automata.
     -   **Regex to NFA/DFA Conversion:** Seamlessly convert regular expressions into their equivalent automata.
@@ -96,14 +99,15 @@ You will be presented with a menu to choose from various compiler and FSA functi
 3. Semantic Analysis
 4. Intermediate Code Generation
 5. Code Optimization
+6. Full Compilation (to Assembly)
 
 --- FSA Tools ---
-6. Regex to NFA/DFA
-7. Test NFA Acceptance (from Regex)
-8. Convert FSA to Regex
-9. Minimize DFA (from Regex)
+7. Regex to NFA/DFA
+8. Test NFA Acceptance (from Regex)
+9. Convert FSA to Regex
+10. Minimize DFA (from Regex)
 
-10. Exit
+11. Exit
 ```
 
 Follow the on-screen prompts to explore the different features.
@@ -120,11 +124,10 @@ pytest
 
 The journey of `PyCompilerDesign` is continuous. As the central reference for compiler design, its roadmap includes:
 
--   **Context-Free Grammar (CFG) Support:** Extend the library to support more complex language models, including pushdown automata and context-free grammars.
--   **Advanced Parsing Techniques:** Implement various parsing algorithms (e.g., LL(1), LR(1)) to handle CFGs and generate parse trees.
--   **Target Code Generation:** Implement generation of target machine code from the optimized intermediate representation.
--   **Advanced Visualization Features:** Explore dynamic visualization capabilities, such as animating state transitions during input processing, or generating interactive web-based visualizations.
--   **Web-Based Interface:** Investigate the development of a user-friendly web interface, allowing for visual FSM design, simulation, and analysis directly in a browser.
+-   **Advanced Parsing Techniques:** Implement various parsing algorithms (e.g., LL(1), LR(1)) to handle more complex grammars.
+-   **Target-Specific Code Generation:** Enhance the code generator to target real-world instruction sets (e.g., x86, ARM, or WebAssembly).
+-   **Advanced Optimization:** Implement more sophisticated optimization techniques, such as loop optimizations or data-flow analysis.
+-   **Web-Based Interface:** Investigate the development of a user-friendly web interface, allowing for visual compiler exploration and analysis directly in a browser.
 
 ## Acknowledgments
 

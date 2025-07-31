@@ -143,3 +143,14 @@
 - [x] **Documentation Update:**
     - [x] Update `README.md` to reflect the new CLI structure and features.
     - [x] Ensure `TODO.md` is up-to-date with the project's progress.
+
+## Phase 10: Code Generation - COMPLETED
+
+- [x] **Implement Code Generator:**
+    - [x] Create `compiler/code_generator.py`.
+    - [x] Implement a `CodeGenerator` class to translate optimized TAC into a simple assembly-like language.
+- [x] **Integrate into CLI:**
+    - [x] Add a "Full Compilation" option to `main.py` that runs the entire compiler pipeline.
+    - [x] Display the final generated assembly code to the user.
+- [x] **Testing the Code Generator:**
+    - [x] Create `tests/test_code_generator.py` with unit tests to validate the correctness of the generated assembly.

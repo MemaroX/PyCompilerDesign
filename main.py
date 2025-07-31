@@ -8,6 +8,7 @@ from compiler.fsa_to_regex import FSAToRegexConverter
 from compiler.semantic_analyzer import SemanticAnalyzer
 from compiler.ir_generator import IRGenerator
 from compiler.optimizer import Optimizer
+from compiler.code_generator import CodeGenerator
 from collections import deque
 import traceback
 
@@ -178,14 +179,15 @@ class CLI:
             print("3. Semantic Analysis")
             print("4. Intermediate Code Generation")
             print("5. Code Optimization")
-            
-            print("\n--- FSA Tools ---")
-            print("6. Regex to NFA/DFA")
-            print("7. Test NFA Acceptance (from Regex)")
-            print("8. Convert FSA to Regex")
-            print("9. Minimize DFA (from Regex)")
+            print("6. Full Compilation (to Assembly)")
 
-            print("\n10. Exit")
+            print("\n--- FSA Tools ---")
+            print("7. Regex to NFA/DFA")
+            print("8. Test NFA Acceptance (from Regex)")
+            print("9. Convert FSA to Regex")
+            print("10. Minimize DFA (from Regex)")
+
+            print("\n11. Exit")
             
             try:
                 choice = self._get_input("Enter your choice: ")
@@ -203,14 +205,16 @@ class CLI:
             elif choice == '5':
                 self.optimize_code()
             elif choice == '6':
-                self.regex_to_nfa_dfa()
+                self.run_full_compilation()
             elif choice == '7':
-                self.test_nfa()
+                self.regex_to_nfa_dfa()
             elif choice == '8':
-                self.fsa_to_regex_conversion()
+                self.test_nfa()
             elif choice == '9':
-                self.minimize_dfa()
+                self.fsa_to_regex_conversion()
             elif choice == '10':
+                self.minimize_dfa()
+            elif choice == '11':
                 print("Exiting PyCompilerDesign CLI. Goodbye!")
                 break
             else:
@@ -256,7 +260,7 @@ class CLI:
             print(f"An unexpected error occurred during code optimization: {e}\n")
             traceback.print_exc()
 
-    def generate_intermediate_code(self):
+    def generate_intermediate_.py
         code = self._get_multiline_input("Enter code for intermediate code generation (type 'END' on a new line to finish):")
         lexer = CppLexer(code)
         tokens, _ = lexer.tokenize_and_filter(include_comments=False, include_newlines=False)
@@ -323,6 +327,45 @@ class CLI:
 
         except Exception as e:
             print(f"Error in DFA minimization: {e}\n")
+            traceback.print_exc()
+
+    def run_full_compilation(self):
+        code = self._get_multiline_input("Enter code to compile (type 'END' on a new line to finish):")
+        try:
+            # 1. Lexing
+            lexer = CppLexer(code)
+            tokens, _ = lexer.tokenize_and_filter(include_comments=False, include_newlines=False)
+            
+            # 2. Parsing
+            parser = Parser(tokens)
+            ast = parser.parse()
+            
+            # 3. Semantic Analysis
+            analyzer = SemanticAnalyzer()
+            analyzer.analyze(ast)
+            
+            # 4. IR Generation
+            ir_generator = IRGenerator()
+            tac_instructions = ir_generator.generate(ast)
+
+            # 5. Optimization
+            optimizer = Optimizer()
+            optimized_tac, _ = optimizer.optimize(tac_instructions)
+
+            # 6. Code Generation
+            code_gen = CodeGenerator()
+            assembly_code = code_gen.generate(optimized_tac)
+
+            print("\n--- Generated Assembly Code ---")
+            for instruction in assembly_code:
+                print(instruction)
+            print("---------------------------------\n")
+            print("Compilation successful.")
+
+        except ValueError as e:
+            print(f"Compilation Error: {e}\n")
+        except Exception as e:
+            print(f"An unexpected error occurred during compilation: {e}\n")
             traceback.print_exc()
 
 if __name__ == "__main__":
