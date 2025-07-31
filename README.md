@@ -11,40 +11,53 @@
 ```
 PyCompilerDesign/
 ├── compiler/
-│   └── fsa/
-│       ├── __init__.py
-│       ├── dfa.py
-│       ├── nfa.py
-│       └── regex.py
+│   ├── fsa/
+│   ├── lexer/
+│   ├── __init__.py
+│   ├── ast_nodes.py
+│   ├── fsa_core.py
+│   ├── fsa_minimizer.py
+│   ├── fsa_to_regex.py
+│   ├── ir_generator.py
+│   ├── lexer.py
+│   ├── optimizer.py
+│   ├── parser.py
+│   └── semantic_analyzer.py
+├── tests/
+│   ├── __init__.py
+│   ├── test_fsa_core.py
+│   ├── test_fsa_minimizer.py
+│   ├── test_fsa_to_regex.py
+│   ├── test_fsa.py
+│   ├── test_lexer.py
+│   ├── test_main.py
+│   ├── test_nfa_acceptance_core.py
+│   └── test_parser.py
 ├── tools/
 │   ├── cli.py
 │   ├── dot_customizer.py
-│   ├── fsm_creator.py
-│   └── visualization.py # (Implicitly used for Graphviz integration)
+│   └── fsm_creator.py
 ├── main.py
 ├── pyproject.toml
 ├── README.md
 └── LICENSE
 ```
 
--   **`compiler/fsa/`**: Contains the core Finite State Automata (FSA) implementation, including Deterministic Finite Automata (DFA), Nondeterministic Finite Automata (NFA), and Regular Expression (Regex) to NFA conversion logic.
--   **`tools/`**: Houses various command-line utilities for interacting with the FSA module, such as FSM creation, advanced CLI for testing, and DOT file customization.
--   **`main.py`**: The main entry point for interactive demonstrations of regex to NFA conversion and string acceptance.
--   **`pyproject.toml`**: Project metadata and dependency management.
--   **`README.md`**: This file, providing an overview of the project.
--   **`LICENSE`**: The project's license.
-
 ## Key Features
 
--   **DFA & NFA Implementation:** Core classes for Deterministic Finite Automata (DFAs) and Nondeterministic Finite Automata (NFAs), enabling the simulation and analysis of computational processes.
--   **Input Acceptance Testing:** Determine whether input strings are accepted or rejected by defined automata.
--   **NFA to DFA Conversion:** Seamlessly convert NFAs to their equivalent DFAs, simplifying analysis and understanding.
--   **Transducers:** Explore step-by-step computation with mutable transducers that process input symbols one at a time.
--   **Regular Expression Integration:** Define automata directly from regular expression patterns, bridging the gap between theoretical language definition and practical automaton construction.
--   **Interactive FSM Creation (`tools/fsm_creator.py`):** An intuitive command-line interface to guide you through the process of defining DFAs and NFAs, generating both JSON definitions and visual DOT graph files.
--   **Advanced CLI (`tools/cli.py`):** A versatile command-line interface for loading, testing, and interacting with FSMs from various sources (JSON, DOT files), including a mesmerizing step-by-step execution mode.
--   **DOT File Customization (`tools/dot_customizer.py`):** Programmatically modify and render DOT graph files, allowing for enhanced visualization and emphasis of specific automaton elements.
--   **Visualization:** Integration with Graphviz to transform abstract mathematical concepts into visual diagrams (PNG), providing clear insights into automaton structure and behavior.
+-   **Full Compiler Pipeline:** Implement and experiment with every phase of a modern compiler:
+    -   **Lexical Analysis:** A robust C++-oriented lexer that generates tokens and a symbol table.
+    -   **Parsing:** A parser that constructs an Abstract Syntax Tree (AST) from the token stream.
+    -   **Semantic Analysis:** A semantic analyzer that traverses the AST to find errors like undeclared variables.
+    -   **Intermediate Code Generation:** An IR generator that produces Three-Address Code (TAC).
+    -   **Code Optimization:** An optimizer that applies techniques like constant folding and copy propagation to the IR.
+-   **Comprehensive FSA Toolkit:** A complete suite of tools for working with Finite State Automata.
+    -   **DFA & NFA Implementation:** Core classes for Deterministic and Nondeterministic Finite Automata.
+    -   **Regex to NFA/DFA Conversion:** Seamlessly convert regular expressions into their equivalent automata.
+    -   **DFA Minimization:** An efficient algorithm to produce the smallest possible equivalent DFA.
+    -   **FSA to Regex Conversion:** Convert NFAs and DFAs back into regular expressions.
+-   **Interactive CLI:** A powerful and user-friendly command-line interface, logically organized into "Compiler Phases" and "FSA Tools" for a clear and efficient workflow.
+-   **Visualization:** Integration with Graphviz to transform abstract automata into clear visual diagrams.
 
 ## Installation
 
@@ -66,79 +79,52 @@ PyCompilerDesign/
 
 ## Usage
 
-### Main Application (`main.py`)
-
-Run the main application to interactively test regular expression to NFA conversion and string acceptance.
+Run the main application to access the interactive CLI.
 
 ```bash
 python main.py
 ```
 
-Follow the prompts to enter a regular expression and test strings against the generated NFA.
+You will be presented with a menu to choose from various compiler and FSA functionalities:
 
-### Interactive FSM Creation (`tools/fsm_creator.py`)
+```
+--- PyCompilerDesign CLI ---
 
-Create new DFAs or NFAs through a guided interactive process.
+--- Compiler Phases ---
+1. Lex Code
+2. Parse Code
+3. Semantic Analysis
+4. Intermediate Code Generation
+5. Code Optimization
 
-```bash
-python tools/fsm_creator.py
+--- FSA Tools ---
+6. Regex to NFA/DFA
+7. Test NFA Acceptance (from Regex)
+8. Convert FSA to Regex
+9. Minimize DFA (from Regex)
+
+10. Exit
 ```
 
-This will generate JSON and DOT files for your automaton.
+Follow the on-screen prompts to explore the different features.
 
-### Advanced CLI (`tools/cli.py`)
+## Testing
 
-Load and test automata from JSON or DOT files, or engage in step-by-step execution.
-
-**Load from JSON and test:**
+The project includes a comprehensive test suite to ensure the correctness and stability of all components. To run the tests, use `pytest`:
 
 ```bash
-python tools/cli.py --load-from my_fsm.json
+pytest
 ```
-
-**Load from DOT file and test:**
-
-```bash
-python tools/cli.py --dot-file path/to/your/automaton.gv
-```
-
-### DOT File Customization (`tools/dot_customizer.py`)
-
-Modify and render existing DOT graph files. For example, to highlight the initial state:
-
-```bash
-python tools/dot_customizer.py --input path/to/input.gv --output customized_automaton
-```
-
-This will generate `customized_automaton.dot` and `customized_automaton.png`.
 
 ## Future Work
 
 The journey of `PyCompilerDesign` is continuous. As the central reference for compiler design, its roadmap includes:
 
--   **Integration of Lexical Analysis:** Incorporate and enhance the lexical analysis capabilities from `FirstTryCppCompiler` and `CppCompilerProject` to provide a complete front-end for a C-like language.
--   **Context-Free Grammar (CFG) Support:** Extend the library to support more complex language models, including pushdown automata and context-free grammars, building upon the theoretical foundations.
--   **Parsing Techniques:** Implement various parsing algorithms (e.g., LL(1), LR(1)) to handle CFGs and generate parse trees.
--   **Semantic Analysis:** Develop modules for type checking, symbol table management, and other semantic validation.
--   **Intermediate Code Generation:** Implement generation of intermediate representations (e.g., Three-Address Code).
--   **Optimization and Code Generation:** Explore techniques for code optimization and generation of target machine code.
--   **Minimization Algorithms:** Implement classic DFA minimization algorithms (e.g., Myhill-Nerode theorem, partition refinement) to optimize automata for efficiency and elegance.
+-   **Context-Free Grammar (CFG) Support:** Extend the library to support more complex language models, including pushdown automata and context-free grammars.
+-   **Advanced Parsing Techniques:** Implement various parsing algorithms (e.g., LL(1), LR(1)) to handle CFGs and generate parse trees.
+-   **Target Code Generation:** Implement generation of target machine code from the optimized intermediate representation.
 -   **Advanced Visualization Features:** Explore dynamic visualization capabilities, such as animating state transitions during input processing, or generating interactive web-based visualizations.
--   **Formal Verification Tools:** Integrate tools for formal verification, enabling users to prove properties about their automata, suchs as equivalence or language inclusion.
--   **Performance Optimization:** Continuously refine the underlying algorithms for enhanced performance, especially when dealing with very large or complex automata.
 -   **Web-Based Interface:** Investigate the development of a user-friendly web interface, allowing for visual FSM design, simulation, and analysis directly in a browser.
-
-## Challenges & Learnings
-
-Developing `PyCompilerDesign` involved navigating several complex theoretical and practical challenges, including:
-
--   **Implementing Core Automata Logic:** Accurately translating mathematical definitions of DFAs and NFAs into robust Python code.
--   **Regular Expression Parsing:** Building a reliable mechanism to convert regex patterns into NFA structures.
--   **Graph Visualization Integration:** Seamlessly connecting Python code with Graphviz for clear and accurate visual representations of automata.
--   **Managing State Transitions:** Ensuring correct state management and transitions during automaton simulation.
--   **Performance Considerations:** Optimizing algorithms for efficiency, especially when dealing with larger automata or complex regex patterns.
-
-This project significantly deepened my understanding of formal language theory, compiler design principles, and the practical application of graph theory in software development.
 
 ## Acknowledgments
 

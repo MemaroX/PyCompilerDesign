@@ -96,3 +96,50 @@
     - [x] Update parsing logic to handle C++ specific syntax elements as needed.
     - [x] Ensure compatibility with the existing AST node structure or extend it as necessary.
     - [x] Write or update unit tests for the parser to validate its functionality with C++ code.
+
+
+## Phase 6: Semantic Analysis - COMPLETED
+
+- [x] **Implement Semantic Analyzer:**
+    - [x] Create `compiler/semantic_analyzer.py`.
+    - [x] Implement a `SemanticAnalyzer` class with a symbol table to track variable declarations and types.
+    - [x] Add methods to traverse the AST and perform checks (e.g., for undeclared variables, type mismatches).
+- [x] **Integrate into CLI:**
+    - [x] Add a "Semantic Analysis" option to `main.py`.
+    - [x] The option should parse the code and then run the semantic analyzer on the resulting AST.
+    - [x] Display success or error messages to the user.
+
+## Phase 7: Intermediate Code Generation - COMPLETED
+
+- [x] **Implement IR Generator:**
+    - [x] Create `compiler/ir_generator.py`.
+    - [x] Implement an `IRGenerator` class that traverses the AST.
+    - [x] Generate Three-Address Code (TAC) instructions for statements and expressions.
+- [x] **Integrate into CLI:**
+    - [x] Add an "Intermediate Code Generation" option to `main.py`.
+    - [x] The option should parse, analyze, and then generate IR from the code.
+    - [x] Display the generated TAC instructions.
+
+## Phase 8: Code Optimization - COMPLETED
+
+- [x] **Implement Optimizer:**
+    - [x] Create `compiler/optimizer.py`.
+    - [x] Implement an `Optimizer` class that takes TAC instructions as input.
+    - [x] Implement optimization techniques like constant folding and copy propagation.
+- [x] **Integrate into CLI:**
+    - [x] Add a "Code Optimization" option to `main.py`.
+    - [x] The option should parse, analyze, generate IR, and then optimize the IR.
+    - [x] Display both the original and optimized TAC.
+
+## Phase 9: CLI and Testing Refinement - COMPLETED
+
+- [x] **Refactor CLI Menu:**
+    - [x] Group CLI options into logical categories (e.g., "Compiler Phases", "FSA Tools").
+- [x] **Comprehensive CLI Testing:**
+    - [x] Create `tests/test_main.py` to test all functionalities of the CLI in `main.py`.
+    - [x] Ensure all methods are tested for both success and failure cases.
+- [x] **Bug Fixes:**
+    - [x] Identify and fix any bugs discovered during testing (e.g., infinite loops, incorrect outputs).
+- [x] **Documentation Update:**
+    - [x] Update `README.md` to reflect the new CLI structure and features.
+    - [x] Ensure `TODO.md` is up-to-date with the project's progress.

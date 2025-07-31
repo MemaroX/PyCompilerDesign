@@ -45,24 +45,31 @@ class IRGenerator:
 
     def emit(self, instruction: TACInstruction):
         self.instructions.append(instruction)
+        print(f"DEBUG: Emitted instruction: {instruction}")
 
     def generate(self, ast: Program) -> List[TACInstruction]:
+        print(f"DEBUG: Starting IR generation for AST: {ast}")
         self.visit(ast)
+        print(f"DEBUG: Finished IR generation. Generated {len(self.instructions)} instructions.")
         return self.instructions
 
     def visit(self, node):
+        print(f"DEBUG: Visiting node of type: {type(node).__name__}")
         method_name = 'visit_' + type(node).__name__
         visitor = getattr(self, method_name, self.generic_visit)
         return visitor(node)
 
     def generic_visit(self, node):
+        print(f"DEBUG: Generic visit for unhandled node type: {type(node).__name__}")
         raise NotImplementedError(f"IR generation not implemented for {type(node).__name__}")
 
     def visit_Program(self, node: Program):
+        print(f"DEBUG: Visiting Program node with {len(node.statements)} statements.")
         for statement in node.statements:
             self.visit(statement)
 
     def visit_VariableDeclaration(self, node: VariableDeclaration):
+        print(f"DEBUG: Visiting VariableDeclaration for '{node.identifier}' (type: {node.var_type}).")
         # For typed declarations, we might emit a special instruction or just use the identifier
         # For now, we'll just handle the initializer if present.
         if node.initializer:
@@ -74,16 +81,20 @@ class IRGenerator:
             pass
 
     def visit_AssignmentStatement(self, node: AssignmentStatement):
+        print(f"DEBUG: Visiting AssignmentStatement for '{node.identifier}'.")
         expr_temp = self.visit(node.expression)
         self.emit(TACInstruction('ASSIGN', expr_temp, result=node.identifier))
 
     def visit_LiteralExpression(self, node: LiteralExpression):
+        print(f"DEBUG: Visiting LiteralExpression with value: {node.value} (type: {type(node.value).__name__})")
         return node.value
 
     def visit_IdentifierExpression(self, node: IdentifierExpression) -> str:
+        print(f"DEBUG: Visiting IdentifierExpression with name: {node.name}")
         return node.name
 
     def visit_BinaryOperation(self, node: BinaryOperation) -> str:
+        print(f"DEBUG: Visiting BinaryOperation: {node.left} {node.operator} {node.right}")
         left_temp = self.visit(node.left)
         right_temp = self.visit(node.right)
         result_temp = self.new_temp()

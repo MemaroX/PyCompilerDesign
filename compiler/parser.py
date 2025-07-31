@@ -108,7 +108,7 @@ class Parser:
             self._skip_whitespace()
             initializer = self.parse_expression()
         self._eat(TokenType.SEMICOLON)
-        return VariableDeclaration(identifier_token.value, initializer)
+        return VariableDeclaration(identifier_token.value, None, initializer)
 
     def _parse_assignment_statement(self) -> AssignmentStatement:
         identifier_token = self._current_token()

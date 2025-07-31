@@ -7,6 +7,7 @@ from compiler.fsa_minimizer import DFAMinimizer
 from compiler.fsa_to_regex import FSAToRegexConverter
 from compiler.semantic_analyzer import SemanticAnalyzer
 from compiler.ir_generator import IRGenerator
+from compiler.optimizer import Optimizer
 from collections import deque
 import traceback
 
@@ -57,10 +58,10 @@ class CLI:
 
     def parse_code(self):
         code = self._get_multiline_input("Enter code to parse (type 'END' on a new line to finish):")
-        lexer = CppLexer(code)
-        tokens, _ = lexer.tokenize_and_filter(include_comments=False, include_newlines=False)
-        parser = Parser(tokens)
         try:
+            lexer = CppLexer(code)
+            tokens, _ = lexer.tokenize_and_filter(include_comments=False, include_newlines=False)
+            parser = Parser(tokens)
             ast = parser.parse()
             print("\n--- AST ---")
             # For now, a simple representation. We can enhance this later.
@@ -68,6 +69,9 @@ class CLI:
             print("--------------\n")
         except ValueError as e:
             print(f"Parsing Error: {e}\n")
+        except Exception as e:
+            print(f"An unexpected error occurred during parsing: {e}\n")
+            traceback.print_exc()
 
     def regex_to_nfa_dfa(self):
         regex_str = self._get_input("Enter a regular expression: ")
@@ -167,16 +171,21 @@ class CLI:
 
     def main_menu(self):
         while True:
-            print("--- PyCompilerDesign CLI ---")
+            print("\n--- PyCompilerDesign CLI ---")
+            print("\n--- Compiler Phases ---")
             print("1. Lex Code")
             print("2. Parse Code")
-            print("3. Regex to NFA/DFA")
-            print("4. Test NFA Acceptance (from Regex)")
-            print("5. Convert FSA to Regex")
-            print("6. Minimize DFA (from Regex)")
-            print("7. Semantic Analysis")
-            print("8. Intermediate Code Generation")
-            print("9. Exit")
+            print("3. Semantic Analysis")
+            print("4. Intermediate Code Generation")
+            print("5. Code Optimization")
+            
+            print("\n--- FSA Tools ---")
+            print("6. Regex to NFA/DFA")
+            print("7. Test NFA Acceptance (from Regex)")
+            print("8. Convert FSA to Regex")
+            print("9. Minimize DFA (from Regex)")
+
+            print("\n10. Exit")
             
             try:
                 choice = self._get_input("Enter your choice: ")
@@ -188,22 +197,64 @@ class CLI:
             elif choice == '2':
                 self.parse_code()
             elif choice == '3':
-                self.regex_to_nfa_dfa()
-            elif choice == '4':
-                self.test_nfa()
-            elif choice == '5':
-                self.fsa_to_regex_conversion()
-            elif choice == '6':
-                self.minimize_dfa()
-            elif choice == '7':
                 self.analyze_code_semantic()
-            elif choice == '8':
+            elif choice == '4':
                 self.generate_intermediate_code()
+            elif choice == '5':
+                self.optimize_code()
+            elif choice == '6':
+                self.regex_to_nfa_dfa()
+            elif choice == '7':
+                self.test_nfa()
+            elif choice == '8':
+                self.fsa_to_regex_conversion()
             elif choice == '9':
+                self.minimize_dfa()
+            elif choice == '10':
                 print("Exiting PyCompilerDesign CLI. Goodbye!")
                 break
             else:
                 print("Invalid choice. Please try again.\n")
+
+    def optimize_code(self):
+        code = self._get_multiline_input("Enter code to optimize (type 'END' on a new line to finish):")
+        
+        lexer = CppLexer(code)
+        tokens, _ = lexer.tokenize_and_filter(include_comments=False, include_newlines=False)
+        parser = Parser(tokens)
+        try:
+            ast = parser.parse()
+            # Perform semantic analysis before IR generation
+            analyzer = SemanticAnalyzer()
+            analyzer.analyze(ast)
+            
+            ir_generator = IRGenerator()
+            tac_instructions = ir_generator.generate(ast)
+
+            print("\n--- Original Intermediate Code (Three-Address Code) ---")
+            for i, tac in enumerate(tac_instructions):
+                print(f"{i}: {tac}")
+            print("-------------------------------------------------------")
+
+            optimizer = Optimizer()
+            optimized_tac_instructions, optimizations = optimizer.optimize(tac_instructions, max_passes=10)
+
+            print("\n--- Optimized Intermediate Code (Three-Address Code) ---")
+            for i, tac in enumerate(optimized_tac_instructions):
+                print(f"{i}: {tac}")
+            print("--------------------------------------------------------")
+
+            if optimizations:
+                print("\nApplied Optimizations:")
+                for opt in optimizations:
+                    print(f"- {opt}")
+            print("Code optimization completed successfully.")
+
+        except ValueError as e:
+            print(f"Error during code optimization: {e}\n")
+        except Exception as e:
+            print(f"An unexpected error occurred during code optimization: {e}\n")
+            traceback.print_exc()
 
     def generate_intermediate_code(self):
         code = self._get_multiline_input("Enter code for intermediate code generation (type 'END' on a new line to finish):")
@@ -275,10 +326,5 @@ class CLI:
             traceback.print_exc()
 
 if __name__ == "__main__":
-    cli = CLI(input_queue=[
-        '8',
-        'int x = 10; int y; y = 10 + 20;',
-        'END',
-        '9'
-    ])
+    cli = CLI()
     cli.main_menu()

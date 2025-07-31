@@ -64,16 +64,23 @@ class DFAMinimizer:
         for state in reachable_states:
             if state not in new_states_map:
                 new_group = {state}
+                # Mark state as visited immediately
+                new_states_map[state] = frozenset(new_group)
+                
                 queue_group = deque([state])
                 while queue_group:
                     current_group_state = queue_group.popleft()
                     for other_state in reachable_states:
+                        # Check if other_state is not yet in any group
                         if other_state not in new_states_map and not distinguishable[current_group_state][other_state]:
                             new_group.add(other_state)
+                            # Mark other_state as visited
+                            new_states_map[other_state] = frozenset(new_group)
                             queue_group.append(other_state)
                 
                 frozenset_group = frozenset(new_group)
                 new_states_list.append(frozenset_group)
+                # Update map for all states in the discovered group
                 for s in new_group:
                     new_states_map[s] = frozenset_group
 

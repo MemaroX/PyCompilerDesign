@@ -18,9 +18,9 @@ class VariableDeclaration(Statement):
         self.initializer = initializer
 
     def __repr__(self):
-        if self.initializer:
-            return f"VariableDeclaration(identifier='{self.identifier}', type='{self.var_type}', initializer={self.initializer})"
-        return f"VariableDeclaration(identifier='{self.identifier}', type='{self.var_type}')"
+        type_str = f", type='{self.var_type}'" if self.var_type else ""
+        initializer_str = f", initializer={self.initializer}" if self.initializer else ""
+        return f"VariableDeclaration(identifier='{self.identifier}'{type_str}{initializer_str})"
 
 class AssignmentStatement(Statement):
     def __init__(self, identifier, expression):
