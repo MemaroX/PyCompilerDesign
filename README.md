@@ -133,6 +133,8 @@ The journey of `PyCompilerDesign` is continuous. As the central reference for co
 
 This project builds upon the foundational work of **James Ansley** (GitHub: [James-Ansley](https://github.com/James-Ansley)) from the original `python-fsa` repository. His elegant design principles laid the groundwork for the advanced capabilities now present in `PyCompilerDesign`.
 
+A special thanks to **Norhan Sameer** (GitHub: [norhan-Sameer](https://github.com/norhan-Sameer)) for her invaluable support and contributions to this project.
+
 ## Contact
 
 MemaroX - [Your GitHub Profile Link](https://github.com/MemaroX)
