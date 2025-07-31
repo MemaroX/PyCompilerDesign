@@ -1,15 +1,20 @@
 from compiler.lexer.token import Token, TokenType
-from compiler.ast_nodes import Program, Statement, Expression, LiteralExpression, BinaryOperation, VariableDeclaration, AssignmentStatement
+from compiler.ast_nodes import Program, Statement, Expression, LiteralExpression, BinaryOperation, VariableDeclaration, AssignmentStatement, IdentifierExpression
 
 class Parser:
     def __init__(self, tokens: list[Token]):
-        # The lexer should now handle token consumption and peeking
-        # We'll pass the list of tokens to the parser, but the parser
-        # will conceptually operate on a stream provided by the lexer.
-        # For now, we'll simulate this by keeping the tokens list and an index.
-        # In a more integrated system, the parser might directly receive a lexer instance.
         self.tokens = tokens
         self.current_token_index = 0
+
+    # Define a set of binary operator token types
+    binary_operators = {
+        TokenType.PLUS, TokenType.MINUS, TokenType.MULTIPLY, TokenType.DIVIDE,
+        TokenType.MODULO, TokenType.ASSIGN, TokenType.EQUAL, TokenType.NOT_EQUAL,
+        TokenType.LESS_THAN, TokenType.GREATER_THAN, TokenType.LESS_EQUAL,
+        TokenType.GREATER_EQUAL, TokenType.LOGICAL_AND, TokenType.LOGICAL_OR,
+        TokenType.BITWISE_AND, TokenType.BITWISE_OR, TokenType.BITWISE_XOR,
+        TokenType.LEFT_SHIFT, TokenType.RIGHT_SHIFT
+    }
 
     def _current_token(self) -> Token:
         if self.current_token_index < len(self.tokens):
@@ -56,7 +61,10 @@ class Parser:
         return Program(statements)
 
     def parse_statement(self) -> Statement:
-        if self._current_token().type == TokenType.LET:
+        # Check for typed variable declarations (e.g., int x = 10;)
+        if self._current_token().type in [TokenType.INT, TokenType.CHAR_KW, TokenType.FLOAT_KW, TokenType.DOUBLE]: # Add other types as needed
+            return self._parse_typed_variable_declaration()
+        elif self._current_token().type == TokenType.LET:
             return self._parse_variable_declaration()
         elif self._current_token().type == TokenType.IDENTIFIER and self._peek_token().type == TokenType.ASSIGN:
             return self._parse_assignment_statement()
@@ -72,6 +80,21 @@ class Parser:
                     f"but got {self._current_token().type.name} "
                     f"at line {self._current_token().line}, column {self._current_token().column}"
                 )
+
+    def _parse_typed_variable_declaration(self) -> VariableDeclaration:
+        type_token = self._current_token()
+        self._advance() # Consume the type token (e.g., INT)
+        self._skip_whitespace()
+        identifier_token = self._current_token()
+        self._eat(TokenType.IDENTIFIER)
+        initializer = None
+        self._skip_whitespace()
+        if self._current_token().type == TokenType.ASSIGN:
+            self._eat(TokenType.ASSIGN)
+            self._skip_whitespace()
+            initializer = self.parse_expression()
+        self._eat(TokenType.SEMICOLON)
+        return VariableDeclaration(identifier_token.value, type_token.value, initializer)
 
     def _parse_variable_declaration(self) -> VariableDeclaration:
         self._eat(TokenType.LET)
@@ -103,12 +126,12 @@ class Parser:
 
         self._skip_whitespace()
 
-        while self._current_token().type == TokenType.OPERATOR:
-            operator = self._current_token().value
-            self._eat(TokenType.OPERATOR)
+        while self._current_token().type in self.binary_operators:
+            operator_token = self._current_token()
+            self._eat(operator_token.type)
             self._skip_whitespace()
             right = self._parse_primary_expression()
-            left = BinaryOperation(left, operator, right)
+            left = BinaryOperation(left, operator_token.value, right)
             self._skip_whitespace()
         return left
 
@@ -121,7 +144,7 @@ class Parser:
         elif self._current_token().type == TokenType.IDENTIFIER:
             value = self._current_token().value
             self._eat(TokenType.IDENTIFIER)
-            return LiteralExpression(value) # For now, treat identifiers as literals in expressions
+            return IdentifierExpression(value)
         else:
             raise ValueError(
                 f"Expected LITERAL or IDENTIFIER, "

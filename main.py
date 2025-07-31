@@ -6,6 +6,7 @@ from compiler.fsa_core import NFA, DFA
 from compiler.fsa_minimizer import DFAMinimizer
 from compiler.fsa_to_regex import FSAToRegexConverter
 from compiler.semantic_analyzer import SemanticAnalyzer
+from compiler.ir_generator import IRGenerator
 from collections import deque
 import traceback
 
@@ -174,7 +175,8 @@ class CLI:
             print("5. Convert FSA to Regex")
             print("6. Minimize DFA (from Regex)")
             print("7. Semantic Analysis")
-            print("8. Exit")
+            print("8. Intermediate Code Generation")
+            print("9. Exit")
             
             try:
                 choice = self._get_input("Enter your choice: ")
@@ -196,10 +198,37 @@ class CLI:
             elif choice == '7':
                 self.analyze_code_semantic()
             elif choice == '8':
+                self.generate_intermediate_code()
+            elif choice == '9':
                 print("Exiting PyCompilerDesign CLI. Goodbye!")
                 break
             else:
                 print("Invalid choice. Please try again.\n")
+
+    def generate_intermediate_code(self):
+        code = self._get_multiline_input("Enter code for intermediate code generation (type 'END' on a new line to finish):")
+        lexer = CppLexer(code)
+        tokens, _ = lexer.tokenize_and_filter(include_comments=False, include_newlines=False)
+        parser = Parser(tokens)
+        try:
+            ast = parser.parse()
+            # Perform semantic analysis before IR generation
+            analyzer = SemanticAnalyzer()
+            analyzer.analyze(ast)
+            
+            ir_generator = IRGenerator()
+            tac_instructions = ir_generator.generate(ast)
+
+            print("\n--- Intermediate Code (Three-Address Code) ---")
+            for i, tac in enumerate(tac_instructions):
+                print(f"{i}: {tac}")
+            print("----------------------------------------------\n")
+
+        except ValueError as e:
+            print(f"Error during intermediate code generation: {e}\n")
+        except Exception as e:
+            print(f"An unexpected error occurred during intermediate code generation: {e}\n")
+            traceback.print_exc()
 
     def analyze_code_semantic(self):
         code = self._get_multiline_input("Enter code for semantic analysis (type 'END' on a new line to finish):")
@@ -246,5 +275,10 @@ class CLI:
             traceback.print_exc()
 
 if __name__ == "__main__":
-    cli = CLI()
+    cli = CLI(input_queue=[
+        '8',
+        'int x = 10; int y; y = 10 + 20;',
+        'END',
+        '9'
+    ])
     cli.main_menu()

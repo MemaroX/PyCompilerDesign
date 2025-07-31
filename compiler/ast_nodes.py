@@ -12,14 +12,15 @@ class Statement(ASTNode):
     pass
 
 class VariableDeclaration(Statement):
-    def __init__(self, identifier, initializer=None):
+    def __init__(self, identifier, var_type=None, initializer=None):
         self.identifier = identifier
+        self.var_type = var_type
         self.initializer = initializer
 
     def __repr__(self):
         if self.initializer:
-            return f"VariableDeclaration(identifier='{self.identifier}', initializer={self.initializer})"
-        return f"VariableDeclaration(identifier='{self.identifier}')"
+            return f"VariableDeclaration(identifier='{self.identifier}', type='{self.var_type}', initializer={self.initializer})"
+        return f"VariableDeclaration(identifier='{self.identifier}', type='{self.var_type}')"
 
 class AssignmentStatement(Statement):
     def __init__(self, identifier, expression):
@@ -31,6 +32,13 @@ class AssignmentStatement(Statement):
 
 class Expression(ASTNode):
     pass
+
+class IdentifierExpression(Expression):
+    def __init__(self, name):
+        self.name = name
+
+    def __repr__(self):
+        return f"IdentifierExpression('{self.name}')"
 
 class LiteralExpression(Expression):
     def __init__(self, value):

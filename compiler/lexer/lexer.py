@@ -129,8 +129,10 @@ class CppLexer:
             while self.current_char() and self.current_char().isdigit():
                 self.advance()
             
-        token_type = TokenType.FLOAT if is_float else TokenType.INTEGER
-        return Token(token_type, self.source[start_pos:self.pos], self.line, start_column)
+        value_str = self.source[start_pos:self.pos]
+        if is_float:
+            return Token(TokenType.FLOAT, float(value_str), self.line, start_column)
+        return Token(TokenType.INTEGER, int(value_str), self.line, start_column)
     
     def read_string(self, quote_char: str) -> Token:
         start_column = self.column

@@ -1,4 +1,4 @@
-from compiler.ast_nodes import Program, VariableDeclaration, AssignmentStatement, LiteralExpression, BinaryOperation
+from compiler.ast_nodes import Program, VariableDeclaration, AssignmentStatement, LiteralExpression, BinaryOperation, IdentifierExpression
 
 class SymbolTable:
     def __init__(self, parent=None):
@@ -49,35 +49,65 @@ class SemanticAnalyzer:
         self.exit_scope()
 
     def visit_VariableDeclaration(self, node: VariableDeclaration):
-        # For now, we'll assume all variables are of a generic 'int' type.
-        # In a more advanced compiler, we'd infer or parse the type.
-        self.current_scope.define(node.identifier, {'type': 'int', 'declared': True})
+        # Use the declared type from the AST node
+        declared_type = node.var_type if node.var_type else 'int' # Default to 'int' if no type specified (for 'let' declarations)
+        self.current_scope.define(node.identifier, {'type': declared_type, 'declared': True})
         if node.initializer:
-            self.visit(node.initializer)
-            # Basic type check: ensure initializer is compatible with 'int'
-            # This is a placeholder; actual type checking would be more complex.
-            if isinstance(node.initializer, LiteralExpression) and not isinstance(node.initializer.value, (int, float)):
-                raise ValueError(f"Type mismatch: Cannot assign {type(node.initializer.value).__name__} to int variable '{node.identifier}'")
+            # Visit the initializer to get its type/value
+            initializer_value = self.visit(node.initializer)
+            # Basic type check: ensure initializer is compatible with declared type
+            if declared_type == 'int':
+                if not isinstance(initializer_value, (int, float)):
+                    raise ValueError(f"Type mismatch: Cannot assign {type(initializer_value).__name__} to {declared_type} variable '{node.identifier}'")
+            # Add more type checks for other types as needed
 
     def visit_AssignmentStatement(self, node: AssignmentStatement):
         symbol_info = self.current_scope.resolve(node.identifier)
         if not symbol_info:
             raise ValueError(f"Undeclared variable: '{node.identifier}'")
         
-        self.visit(node.expression)
+        # Visit the expression to get its type/value
+        expression_value = self.visit(node.expression)
         # Basic type check: ensure expression is compatible with variable's type
-        # This is a placeholder; actual type checking would be more complex.
-        if symbol_info['type'] == 'int':
-            if isinstance(node.expression, LiteralExpression) and not isinstance(node.expression.value, (int, float)):
-                raise ValueError(f"Type mismatch: Cannot assign {type(node.expression.value).__name__} to int variable '{node.identifier}'")
+        assigned_to_type = symbol_info['type']
+        if assigned_to_type == 'int':
+            if not isinstance(expression_value, (int, float)):
+                raise ValueError(f"Type mismatch: Cannot assign {type(expression_value).__name__} to {assigned_to_type} variable '{node.identifier}'")
+        # Add more type checks for other types as needed
 
     def visit_LiteralExpression(self, node: LiteralExpression):
-        # For now, we just visit the literal. Type information could be returned here.
-        pass
+        # Return the actual value of the literal for type checking
+        return node.value
+
+    def visit_IdentifierExpression(self, node: IdentifierExpression):
+        # Resolve the identifier's type from the symbol table
+        symbol_info = self.current_scope.resolve(node.name)
+        if not symbol_info:
+            raise ValueError(f"Undeclared variable: '{node.name}'")
+        # For now, return a placeholder value based on its type for type checking
+        # In a real compiler, this would return the actual type.
+        if symbol_info['type'] == 'int':
+            return 0 # Placeholder for int
+        return None # Placeholder for other types
 
     def visit_BinaryOperation(self, node: BinaryOperation):
-        self.visit(node.left)
-        self.visit(node.right)
-        # Basic type checking for binary operations would go here.
-        # For example, ensuring both operands are numbers for arithmetic ops.
-        pass
+        left_value = self.visit(node.left)
+        right_value = self.visit(node.right)
+
+        # Basic type checking for binary operations
+        if not isinstance(left_value, (int, float)) or not isinstance(right_value, (int, float)):
+            raise ValueError(f"Type mismatch: Binary operation '{node.operator}' requires numeric operands.")
+        
+        # For now, return a placeholder result for the operation
+        if node.operator == '+':
+            return left_value + right_value
+        elif node.operator == '-':
+            return left_value - right_value
+        elif node.operator == '*':
+            return left_value * right_value
+        elif node.operator == '/':
+            if right_value == 0:
+                raise ValueError("Division by zero.")
+            return left_value / right_value
+        
+        return None # Placeholder for other operations
