@@ -8,7 +8,6 @@ class CppLexer:
         self.pos = 0
         self.line = 1
         self.column = 1
-        self.symbol_table = {}
         
         # C++ keywords mapping
         self.keywords = {
@@ -45,6 +44,7 @@ class CppLexer:
             'void': TokenType.VOID,
             'volatile': TokenType.VOLATILE,
             'while': TokenType.WHILE,
+            'let': TokenType.LET,
             
             # C++ keywords
             'class': TokenType.CLASS,
@@ -74,7 +74,6 @@ class CppLexer:
             'thread_local': TokenType.THREAD_LOCAL,
             'alignas': TokenType.ALIGNAS,
             'alignof': TokenType.ALIGNOF,
-            'let': TokenType.LET,
             
             # Boolean literals
             'true': TokenType.BOOLEAN,
@@ -100,10 +99,6 @@ class CppLexer:
             self.column += 1
         self.pos += 1
     
-    def skip_whitespace(self) -> None:
-        while self.current_char() and self.current_char() in ' \t\r':
-            self.advance()
-    
     def read_number(self) -> Token:
         start_pos = self.pos
         start_column = self.column
@@ -116,7 +111,7 @@ class CppLexer:
         # Check for decimal point
         if self.current_char() == '.' and self.peek_char() and self.peek_char().isdigit():
             is_float = True
-            self.advance()  # consume '.'
+            self.advance()  # consume "."
             while self.current_char() and self.current_char().isdigit():
                 self.advance()
             
@@ -129,10 +124,8 @@ class CppLexer:
             while self.current_char() and self.current_char().isdigit():
                 self.advance()
             
-        value_str = self.source[start_pos:self.pos]
-        if is_float:
-            return Token(TokenType.FLOAT, float(value_str), self.line, start_column)
-        return Token(TokenType.INTEGER, int(value_str), self.line, start_column)
+        token_type = TokenType.FLOAT if is_float else TokenType.INTEGER
+        return Token(token_type, self.source[start_pos:self.pos], self.line, start_column)
     
     def read_string(self, quote_char: str) -> Token:
         start_column = self.column
@@ -191,9 +184,6 @@ class CppLexer:
         value = self.source[start_pos:self.pos]
         token_type = self.keywords.get(value, TokenType.IDENTIFIER)
         
-        if token_type == TokenType.IDENTIFIER and value not in self.symbol_table:
-            self.symbol_table[value] = {'line': self.line, 'column': start_column}
-            
         return Token(token_type, value, self.line, start_column)
     
     def read_single_line_comment(self) -> Token:
@@ -210,13 +200,13 @@ class CppLexer:
         start_column = self.column
         start_pos = self.pos
         
-        self.advance()  # skip '/'
-        self.advance()  # skip '*'
+        self.advance()  # skip "/"
+        self.advance()  # skip "*"
         
         while self.current_char():
             if self.current_char() == '*' and self.peek_char() == '/':
-                self.advance()  # skip '*'
-                self.advance()  # skip '/'
+                self.advance()  # skip "*"
+                self.advance()  # skip "/"
                 break
             self.advance()
         
@@ -226,19 +216,10 @@ class CppLexer:
     def get_next_token(self) -> Token:
         # print(f"[DEBUG] get_next_token: current_char={self.current_char()!r}, pos={self.pos}, line={self.line}, column={self.column}")
         while self.current_char():
-            # Handle whitespace
-            if self.current_char() in ' \t\r':
-                start_pos = self.pos
-                start_column = self.column
-                self.skip_whitespace()
-                return Token(TokenType.WHITESPACE, self.source[start_pos:self.pos], self.line, start_column)
-            
-            # Newlines
-            if self.current_char() == '\n':
-                token = Token(TokenType.NEWLINE, '\n', self.line, self.column)
+            # Skip whitespace
+            if self.current_char() in ' \t\r\n':
                 self.advance()
-                # print(f"[DEBUG] get_next_token: returning NEWLINE: {token}")
-                return token
+                continue
             
             # Comments (check before / operator)
             if self.current_char() == '/':
@@ -306,22 +287,26 @@ class CppLexer:
             # Numbers
             if self.current_char() and self.current_char().isdigit():
                 num_token = self.read_number()
-                return Token(TokenType.LITERAL, num_token.value, num_token.line, num_token.column)
+                # print(f"[DEBUG] get_next_token: returning NUMBER: {num_token}")
+                return num_token
             
             # Identifiers and keywords
             if self.current_char() and (self.current_char().isalpha() or self.current_char() == '_'):
                 id_token = self.read_identifier()
+                # print(f"[DEBUG] get_next_token: returning IDENTIFIER/KEYWORD: {id_token}")
                 return id_token
             
             # String literals
             if self.current_char() == '"':
                 str_token = self.read_string('"')
-                return Token(TokenType.LITERAL, str_token.value, str_token.line, str_token.column)
+                # print(f"[DEBUG] get_next_token: returning STRING: {str_token}")
+                return str_token
             
             # Character literals
             if self.current_char() == "'":
                 char_token = self.read_string("'")
-                return Token(TokenType.LITERAL, char_token.value, char_token.line, char_token.column)
+                # print(f"[DEBUG] get_next_token: returning CHAR: {char_token}")
+                return char_token
 
             # Single-character operators and punctuation
             single_char_tokens = {
@@ -377,7 +362,7 @@ class CppLexer:
         return tokens
     
     def tokenize_and_filter(self, include_comments: bool = False, 
-                           include_newlines: bool = False) -> tuple[List[Token], dict]:
+                           include_newlines: bool = False) -> List[Token]:
         """Tokenize and optionally filter out comments and newlines"""
         tokens = self.tokenize()
         
@@ -388,4 +373,4 @@ class CppLexer:
         if not include_newlines:
             tokens = [t for t in tokens if t.type != TokenType.NEWLINE]
         
-        return tokens, self.symbol_table
+        return tokens
