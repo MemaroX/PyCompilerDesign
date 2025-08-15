@@ -31,3 +31,6 @@ Thumbs.db
 
 # Environment variables
 .env
+
+# Temporary files
+maher fix/
